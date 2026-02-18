@@ -1,29 +1,53 @@
 "use client"
 
-import { useState } from "react";
-import RoomCard from "@/components/RoomCard";
+import Header from "@/components/Header";
+import Navbar from "@/components/Navbar";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
-// Dummy rooms data
-const dummyRooms = [
-  { id: "1", name: "Room A", capacity: 10, location: "First Floor" },
-  { id: "2", name: "Room B", capacity: 5 },
-  { id: "3", name: "Room C", capacity: 15, location: "Second Floor" },
-];
+export default function AdminDashboard() {
 
-export default function UserDashboardPage() {
-  const [rooms, setRooms] = useState(dummyRooms);
+  const router = useRouter();
+  const { user, loading } = useAuth();
 
-  const handleBook = (roomId: string) => {
-    alert(`Booking room with ID: ${roomId}`);
-    // Here you would call POST /api/reservations
-  };
+  if (loading) return <p>Loading...</p>;
+  if (!user) return <p>Please login</p>;
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Available Rooms</h1>
-      {rooms.map(room => (
-        <RoomCard key={room.id} room={room} onBook={handleBook} />
-      ))}
+    <div>
+      <Header user={user} onLogout={() => console.log("logout")} />
+      <Navbar role={user.role} />
+
+      <h1 className="text-2xl font-bold mb-4 mt-4">Welcome {user.name}!</h1>
+
+      <h2>Rooms</h2>
+      <button
+        onClick={() => router.push("/rooms")}
+        className="px-2 py-1 mb-2 bg-blue-500 text-white rounded"
+      >
+        Manage rooms
+      </button>
+
+      <br></br>
+
+      <h2>Users</h2>
+      <button
+          onClick={() => router.push("/users")}
+          className="px-2 py-1 mb-2 bg-blue-500 text-white rounded"
+        >
+          Manage users
+      </button>
+
+      <br></br>
+
+      <h2>Reservations</h2>
+      <button
+          onClick={() => router.push("")}
+          className="px-2 py-1 mb-2 bg-blue-500 text-white rounded"
+        >
+          Manage Reservations
+      </button>
+      
     </div>
   );
 }

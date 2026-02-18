@@ -2,8 +2,9 @@ import User from "@/models/User";
 import connectToDatabase from "@/lib/db";
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
 
-export async function POST(request) {
+export async function POST(request: Request) {
     try {
 
         connectToDatabase();
@@ -23,9 +24,13 @@ export async function POST(request) {
             return NextResponse.json({error: "Invalid password.", status: 401})
         }
 
-        return NextResponse.json({message: "Log In Successful", status: 201})
+        // Create JWT token
+        const token = jwt.sign({ id: userExist._id, role: userExist.role }, "SECRET_KEY", { expiresIn: "1h" });
 
-    } catch(err) {
+        return NextResponse.json({message: "Log In Successful", status: 201, user: { name: userExist.name, email: userExist.email, role: userExist.role },
+    token})
+
+    } catch(err: any) {
         return NextResponse.json({error: err.message, status: 500})
     }
 }
