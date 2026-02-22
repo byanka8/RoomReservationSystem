@@ -1,6 +1,6 @@
 # Room Reservation System
 
-A web application for managing room reservations in a school setting, built with **Next.js**, **Tailwind CSS**, and **MongoDB**. This project also serves as a practice ground for applying **cybersecurity concepts** in a real-world web application.  
+A web application for managing room reservations in a school setting, built with **Next.js**, **Tailwind CSS**, and **MongoDB**. This project also serves as a practice ground for applying **secure web practices** in a real-world web application.  
 
 Users, including students, faculty, and staff, can reserve rooms for various purposes, while admins and managers can manage rooms, users, and reservations.  
 
@@ -58,8 +58,8 @@ Users, including students, faculty, and staff, can reserve rooms for various pur
 
 ## Project Status
 This project is currently **ongoing**.  
-- ✅ Completed: Login and Registration  
-- ⚙️ In Progress: CRUD for rooms, reservations, and users  
+- ✅ Completed: Login, Registration, CRUD for rooms and users  
+- ⚙️ In Progress: CRUD for reservations  
 - 🖌 Planned: UI beautification and advanced features  
 
 ---
