@@ -76,84 +76,88 @@ export function UserForm({ initialData }: UserFormProps) {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 flex justify-center items-center p-4">
       <form
         onSubmit={handleSubmit}
-        className="big-white p-8 rounded shadow-md w-96"
+        className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md"
       >
-        <h1 className="text-2xl font-bold mb-6">
-          {isEditMode ? "Edit User" : "Create User"}
+        <h1 className="text-3xl font-bold text-gray-800 mb-8">
+          {isEditMode ? "✏️ Edit User" : "👤 Create User"}
         </h1>
 
         {/* Name */}
-        <div className="mb-4">
-          <label className="block text-gray-700">Name</label>
+        <div className="mb-6">
+          <label className="block text-gray-700 font-semibold mb-2">Full Name</label>
           <input
             type="text"
-            placeholder="Enter Name"
+            placeholder="John Doe"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 border rounded"
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-500 transition-colors duration-200"
             required
           />
         </div>
 
-        {/* Eamil */}
-        <div className="mb-4">
-          <label className="block text-gray-700">Email</label>
+        {/* Email */}
+        <div className="mb-6">
+          <label className="block text-gray-700 font-semibold mb-2">Email Address</label>
           <input
             type="email"
-            placeholder="Enter Email"
+            placeholder="john@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2 border rounded"
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-500 transition-colors duration-200"
             required
           />
         </div>
 
         {/* Password */}
-        <div className="mb-4">
-          <label className="block text-gray-700">Password</label>
+        <div className="mb-6">
+          <label className="block text-gray-700 font-semibold mb-2">Password</label>
           <input
             type="password"
-            placeholder="Enter Password"
+            placeholder={isEditMode ? "Leave blank to keep current" : "Create strong password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2 border rounded"
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-500 transition-colors duration-200"
           />
         </div>
 
         {/* Role */}
-        <div className="mb-4">
-          <label className="block text-gray-700">Role</label>
-          <input
-            type="text"
-            placeholder="Choose Role"
+        <div className="mb-6">
+          <label className="block text-gray-700 font-semibold mb-2">Role</label>
+          <select
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            className="w-full px-3 py-2 border rounded"
-          />
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-500 transition-colors duration-200"
+            required
+          >
+            <option value="">Select a role</option>
+            <option value="user">User</option>
+            <option value="manager">Manager</option>
+            <option value="admin">Admin</option>
+          </select>
         </div>
 
         {/* Avatar */}
-        <div className="mb-4">
-          <label className="block text-gray-700">Picture</label>
+        <div className="mb-6">
+          <label className="block text-gray-700 font-semibold mb-2">Picture URL</label>
           <input
             type="text"
-            placeholder="Enter Link"
+            placeholder="https://example.com/avatar.jpg"
             value={avatar}
             onChange={(e) => setAvatar(e.target.value)}
-            className="w-full px-3 py-2 border rounded"
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-500 transition-colors duration-200"
           />
         </div>
 
-        {error && <p className="text-red-600 mb-3">{error}</p>}
+        {error && <div className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">{error}</div>}
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
+          className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-lg font-bold hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-lg"
         >
-          {isEditMode ? "Update User" : "Create User"}
+          {isEditMode ? "✅ Update User" : "➕ Create User"}
         </button>
       </form>
     </div>

@@ -35,48 +35,52 @@ export default function LoginPage() {
     }
 
     return(
-        <div className="flex justify-center items-center h-screen">
+        <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
             <form 
             onSubmit={handleSubmit}
-                className="big-white p-8 rounded shadow-md w-96">
-                <h1 className="text-2xl font-bold mb-6">Log In</h1>
-                <div className="mb-4">
-                    <label className="block text-gray-700">Email</label>
+                className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
+                <div className="text-center mb-8">
+                  <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back 👋</h1>
+                  <p className="text-gray-600">Sign in to your account</p>
+                </div>
+                
+                <div className="mb-5">
+                    <label className="block text-gray-700 font-semibold mb-2">Email Address</label>
                     <input 
                       type="email"
-                      placeholder="Enter Email"
+                      placeholder="you@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-3 py-2 border rounded"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors duration-200"
                       required
                     />
                 </div>
-                <div className="mb-4">
-                    <label className="block text-gray-700">Password</label>
+                <div className="mb-6">
+                    <label className="block text-gray-700 font-semibold mb-2">Password</label>
                     <input 
                       type="password"
-                      placeholder="Enter Password"
+                      placeholder="••••••••"
                       value={password} 
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-3 py-2 border rounded"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors duration-200"
                       required
                     />
                 </div>
 
-                {error && <p className="text-red-600">{error}</p>}
+                {error && <div className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">{error}</div>}
                 
-                {/* Register or submit button will be passed to the server side. */}
-                <button className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition">
+                <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-bold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg">
                     Log In
                 </button>
 
-                <p className="py-2">
-                    New to Roser?{" "}
-                    <Link href="/register" className="text-blue-600 underline hover:text-blue-800">
-                        Create New Account
-                    </Link>
-                </p>
-                
+                <div className="mt-6 text-center">
+                    <p className="text-gray-600">
+                        Don't have an account?{" "}
+                        <Link href="/register" className="text-blue-600 font-semibold hover:text-blue-700 hover:underline">
+                            Create one now
+                        </Link>
+                    </p>
+                </div>
             </form>
         </div>
     

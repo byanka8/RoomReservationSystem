@@ -34,35 +34,47 @@ export default function RoomCard({ room }: { room: Room }) {
    };
 
   return (
-    <div style={{ border: '1px solid #ddd', padding: 16, borderRadius: 8 }}>
-      <h3>{room.name}</h3>
-      <p><strong>Location:</strong> {room.location}</p>
-      <p><strong>Capacity:</strong> {room.capacity}</p>
-      <p>{room.description}</p>
+    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-200">
+      <div className="p-6">
+        <h3 className="text-xl font-bold text-gray-800 mb-3">{room.name}</h3>
+        
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center text-gray-700">
+            <span className="font-semibold w-28">📍 Location:</span>
+            <span>{room.location}</span>
+          </div>
+          <div className="flex items-center text-gray-700">
+            <span className="font-semibold w-28">👥 Capacity:</span>
+            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">{room.capacity} people</span>
+          </div>
+        </div>
+        
+        <p className="text-gray-600 text-sm mb-6 leading-relaxed">{room.description}</p>
 
-      {/* Edit and Delete */}
-      <div className="mt-2 flex gap-2">
+        {/* Edit and Delete */}
+        <div className="mt-4 flex gap-2">
 
         <a
           href={`/rooms/${room._id}`}
-          className="px-2 py-1 bg-blue-500 text-white rounded"
+          className="flex-1 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors duration-200 text-center"
         >
           View
         </a>
 
         <a
           href={`/rooms/${room._id}/edit`}
-          className="px-2 py-1 bg-blue-500 text-white rounded"
+          className="flex-1 px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors duration-200 text-center"
         >
           Edit
         </a>
 
         <button
           onClick={handleDelete}
-          className="px-2 py-1 bg-red-500 text-white rounded"
+          className="flex-1 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors duration-200"
         >
           Delete
         </button>
+      </div>
       </div>
     </div>
   );

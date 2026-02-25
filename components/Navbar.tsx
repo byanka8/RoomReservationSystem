@@ -12,12 +12,20 @@ export default function Navbar({ role }: Props) {
   }
 
   return (
-    <nav className="bg-gray-200 p-4 space-x-4">
-      {links.map(link => (
-        <a key={link} href={`/${link.toLowerCase().replace(" ", "-")}`} className="hover:text-blue-500">
-          {link}
-        </a>
-      ))}
+    <nav className="bg-gray-50 border-b border-gray-200 shadow-sm">
+      <div className="max-w-7xl mx-auto px-6 py-0">
+        <div className="flex space-x-1">
+          {links.map(link => (
+            <a 
+              key={link} 
+              href={`/${link.toLowerCase().replace(" ", "-")}`} 
+              className="px-4 py-3 text-gray-700 font-medium hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200 border-b-2 border-transparent hover:border-blue-600"
+            >
+              {link}
+            </a>
+          ))}
+        </div>
+      </div>
     </nav>
   );
 }

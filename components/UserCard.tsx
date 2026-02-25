@@ -35,36 +35,54 @@ export default function UserCard({ user }: { user: User }) {
    };
 
   return (
-    <div style={{ border: '1px solid #ddd', padding: 16, borderRadius: 8 }}>
-      <h3>{user.name}</h3>
-      <p><strong>email:</strong> {user.email}</p>
-      <p><strong>password: ● ● ● ● ●</strong></p>
-      <p><strong>role: {user.role}</strong></p>
-      <p><strong>avatar:</strong>{user.avatar}</p>
+    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-200">
+      <div className="p-6">
+        <h3 className="text-xl font-bold text-gray-800 mb-4">{user.name}</h3>
+        
+        <div className="space-y-3 mb-6">
+          <div className="flex items-center justify-between">
+            <span className="text-gray-600 font-medium">📧 Email:</span>
+            <span className="text-gray-800">{user.email}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-gray-600 font-medium">🔒 Password:</span>
+            <span className="text-gray-800">● ● ● ● ●</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-gray-600 font-medium">👤 Role:</span>
+            <span className="capitalize bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">{user.role}</span>
+          </div>
+          {user.avatar && (
+            <div className="flex items-center justify-between">
+              <span className="text-gray-600 font-medium">🖼️ Avatar:</span>
+              <span className="text-gray-800 text-sm truncate">{user.avatar}</span>
+            </div>
+          )}
+        </div>
 
-      {/* Edit and Delete */}
-      <div className="mt-2 flex gap-2">
+        {/* Edit and Delete */}
+        <div className="flex gap-2">
+          <a
+            href={`/users/${user._id}`}
+            className="flex-1 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors duration-200 text-center"
+          >
+            View
+          </a>
 
-        <a
-          href={`/users/${user._id}`}
-          className="px-2 py-1 bg-blue-500 text-white rounded"
-        >
-          View
-        </a>
+          <a
+            href={`/users/${user._id}/edit`}
+            className="flex-1 px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors duration-200 text-center"
+          >
+            Edit
+          </a>
 
-        <a
-          href={`/users/${user._id}/edit`}
-          className="px-2 py-1 bg-blue-500 text-white rounded"
-        >
-          Edit
-        </a>
-
-        <button
-          onClick={handleDelete}
-          className="px-2 py-1 bg-red-500 text-white rounded"
-        >
-          Delete
-        </button>
+          <button
+            onClick={handleDelete}
+            className="flex-1 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors duration-200"
+          >
+            Delete
+          </button>
+        </div>
       </div>
     </div>
   );
