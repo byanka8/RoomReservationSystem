@@ -5,6 +5,9 @@ A web application for managing room reservations in a school setting, built with
 Users, including students, faculty, and staff, can reserve rooms for various purposes, while admins and managers can manage rooms, users, and reservations.  
 
 ---
+## Contributors
+- [Bea Sollesta](https://github.com/MoominHana) (frontend)
+- [Bianca Sollesta](https://github.com/byanka8) (backend)
 
 ## Table of Contents
 - Features
@@ -73,7 +76,7 @@ git clone https://github.com/byanka8/RoomReservationSystem.git
 cd room-reservation-system
 
 # Install dependencies
-npm install axios bcrypt mongoose
+npm install
 
 # Run the development server
 npm run dev
