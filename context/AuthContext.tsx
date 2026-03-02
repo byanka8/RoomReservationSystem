@@ -2,7 +2,9 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
-type User = { name: string; role: "user" | "manager" | "admin" };
+type User = {
+    _id: any; name: string; role: "user" | "manager" | "admin" 
+};
 
 type AuthContextType = {
   user: User | null;

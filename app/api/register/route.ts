@@ -29,7 +29,7 @@ export async function POST(request: Request) {
         // Create JWT token
         const token = jwt.sign({ id: newUser._id, role: newUser.role }, "SECRET_KEY", { expiresIn: "1h" });
 
-        return NextResponse.json({message: "User Registered", status: 201, user: { name: newUser.name, email: newUser.email, role: newUser.role },
+        return NextResponse.json({message: "User Registered", status: 201, user: { _id: newUser._id, name: newUser.name, email: newUser.email, role: newUser.role },
     token})
     
     } catch(err: any) {

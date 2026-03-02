@@ -43,6 +43,13 @@ export default function RoomCard({ room }: { room: Room }) {
       {/* Edit and Delete */}
       <div className="mt-2 flex gap-2">
 
+        <button
+          onClick={() => router.push(`/reservations/new?roomId=${room._id}`)}
+          className="mt-3 px-3 py-1 bg-green-500 text-white rounded"
+        >
+          Reserve
+        </button>
+
         <a
           href={`/rooms/${room._id}`}
           className="px-2 py-1 bg-blue-500 text-white rounded"

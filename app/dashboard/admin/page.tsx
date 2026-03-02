@@ -42,7 +42,7 @@ export default function AdminDashboard() {
 
       <h2>Reservations</h2>
       <button
-          onClick={() => router.push("")}
+          onClick={() => router.push("/reservations")}
           className="px-2 py-1 mb-2 bg-blue-500 text-white rounded"
         >
           Manage Reservations

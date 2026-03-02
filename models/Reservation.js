@@ -8,7 +8,7 @@ const reservationSchema = new mongoose.Schema(
         date: { type: Date, required: true },
         startTime: { type: String, required: true },
         endTime: { type: String, required: true },
-        status: { type: String, enum: ["pending", "confirmed", "cancelled"], default: "confirmed" },
+        status: { type: String, enum: ["pending", "confirmed", "cancelled"], default: "pending" },
     },
     { timestamps: true } // for createdAt and updatedAt
 )
