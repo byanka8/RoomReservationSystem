@@ -40,7 +40,7 @@ export default function UsersPage() {
       </button>
 
       <button
-          onClick={() => router.push("dashboard/admin")}
+          onClick={() => router.back()}
           className="px-2 py-1 bg-blue-500 text-white rounded"
         >
           Back

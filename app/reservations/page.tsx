@@ -62,7 +62,7 @@ export default function ReservationsPage() {
         </button>
 
         <button
-          onClick={() => router.push("/dashboard/admin")}
+          onClick={() => router.back()}
           className="px-3 py-1 bg-gray-500 text-white rounded"
         >
           Back
