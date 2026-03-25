@@ -13,7 +13,7 @@ export async function POST(request: Request) {
         const {name, email, password} = await request.json()
         const userExistence = await User.findOne({email})
         if(userExistence) {
-            return NextResponse.json({error: "User already existed"})
+            return NextResponse.json({error: "Please input valid credentials."})
         }
 
         // hash password

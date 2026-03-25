@@ -15,13 +15,13 @@ export async function POST(request: Request) {
 
 
         if(!userExist) {
-            return NextResponse.json({error: "User does not exist.", status: 401})
+            return NextResponse.json({error: "Invalid username and/or password.", status: 401})
         }
 
         const isMatch = await bcrypt.compare(password, userExist.password);
 
         if(!isMatch) {
-            return NextResponse.json({error: "Invalid password.", status: 401})
+            return NextResponse.json({error: "Invalid username and/or password.", status: 401})
         }
 
         // Create JWT token
