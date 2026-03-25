@@ -5,6 +5,22 @@ import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
+const isValidPassword = (password: string): boolean => {
+    // Check length
+    if (password.length < 8) return false;
+    
+    // Check for at least one uppercase letter
+    if (!/[A-Z]/.test(password)) return false;
+    
+    // Check for at least one lowercase letter
+    if (!/[a-z]/.test(password)) return false;
+    
+    // Check for at least one special character
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) return false;
+    
+    return true;
+};
+
 export default function Registration() {
 
     const [name, setName] = useState('')
@@ -16,6 +32,13 @@ export default function Registration() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+
+        // Password validation
+        if (!isValidPassword(password)) {
+            setError("Please input a valid password.");
+            return;
+        }
+
         const response = await axios.post('/api/register', {name, email, password}) // creates api folder inside register folder
         console.log(response)
         if(response.data.status==201) {
@@ -72,6 +95,15 @@ export default function Registration() {
                       className="w-full px-3 py-2 border rounded"
                       required
                     />
+                    <p className="text-sm text-gray-500">
+                        Password must contain:
+                    </p>
+                    <ul className="list-disc list-inside text-sm text-gray-500">
+                        <li>At least 8 characters long</li>
+                        <li>At least one uppercase letter</li>
+                        <li>At least one lowercase letter</li>
+                        <li>At least one special character</li>
+                    </ul>
                 </div>
 
                 {error && <p className="text-red-600">{error}</p>}
