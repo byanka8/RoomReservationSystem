@@ -11,22 +11,26 @@ export default function LoginPage() {
     const [password, setPassword] = useState('')
     const [error, setError] = useState<string | null>(null);
     const router = useRouter()
-    const { login } = useAuth();
+    const { refreshUser } = useAuth();
+    const { user } = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setError(null);
 
-        const response = await axios.post('/api/login', {email, password}) // creates api folder inside register folder
+        const response = await axios.post('/api/login', {email, password}, { withCredentials: true }) // creates api folder inside register folder
         console.log(response)
         if(response.data.status==201) {
-            login(response.data.user);
-            if(response.data.user.role == "admin")
-                router.push('/dashboard/admin')
-            else if(response.data.user.role == "manager")
-                router.push('/dashboard/manager')
-            else if(response.data.user.role == "user")
-                router.push('/dashboard/user')
+            await refreshUser();
+
+            // small delay ensures cookie is ready
+            setTimeout(() => {
+                const role = response.data.user.role;
+
+                if (role === "admin") router.push('/dashboard/admin');
+                else if (role === "manager") router.push('/dashboard/manager');
+                else router.push('/dashboard/user');
+                }, 100);
         } else {
             setError(response.data.error || "Login failed");
             setEmail("");       // clear email field
@@ -61,6 +65,16 @@ export default function LoginPage() {
                       className="w-full px-3 py-2 border rounded"
                       required
                     />
+                </div>
+                <div className="mb-4">
+                    <p className="text-right text-sm mt-1">
+                        <Link 
+                            href="/forgotPassword" 
+                            className="text-blue-600 hover:underline"
+                        >
+                            Forgot Password?
+                        </Link>
+                    </p>
                 </div>
 
                 {error && <p className="text-red-600">{error}</p>}

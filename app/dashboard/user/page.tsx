@@ -12,7 +12,11 @@ export default function UserDashboard() {
     const { user, loading } = useAuth();
     
     if (loading) return <p>Loading...</p>;
-    if (!user) return <p>Please login</p>;
+    
+    // role-based protection (UI level)
+    if (user?.role !== "user") {
+        return <p>Unauthorized</p>;
+    }
 
     return (
         <div>

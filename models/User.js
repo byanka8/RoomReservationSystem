@@ -8,6 +8,11 @@ const userSchema = new mongoose.Schema(
         password: {type: String, required: true},
         role: { type: String, enum: ["user", "manager", "admin"], default: "user" },
         avatar: { type: String },
+        securityQuestion: { type: String },
+        securityAnswer: { type: String },
+        resetToken: { type: String, default: null },
+        resetTokenExpiry: { type: Number, default: null },
+        passwordChangedAt: { type: Date, default: null }
     },
     { timestamps: true } // for createdAt and updatedAt
 )
