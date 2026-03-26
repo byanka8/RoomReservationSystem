@@ -20,12 +20,15 @@ export async function POST(request: Request) {
         const hashpassword = await bcrypt.hash(password, 10)
         const hashedAnswer = await bcrypt.hash(securityAnswer.toLowerCase(), 10);
 
+        const passwordChangedAt = new Date();
+
         const newUser = new User({
             name,
             email,
             password: hashpassword,
             securityQuestion,
-            securityAnswer: hashedAnswer
+            securityAnswer: hashedAnswer,
+            passwordChangedAt
         })
         await newUser.save()
 

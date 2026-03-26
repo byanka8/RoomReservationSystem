@@ -106,7 +106,7 @@ export default function UserCard({ user }: { user: User }) {
           onVerified={() => {
             setShowReAuth(false);
             if (method == "change")
-              router.push("/passwordChange")
+              router.push("/changePassword")
             else if (method == "delete")
               handleDelete();
           }}
