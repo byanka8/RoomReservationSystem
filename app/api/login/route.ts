@@ -18,11 +18,46 @@ export async function POST(request: Request) {
             return NextResponse.json({error: "Invalid username and/or password.", status: 401})
         }
 
+        // Check if account is disabled
+        if(userExist.isAccountDisabled) {
+            const disabledTime = new Date(userExist.accountDisabledAt).getTime();
+            const currentTime = new Date().getTime();
+            const fifteenMinutes = 15 * 60 * 1000; // 15 minutes in milliseconds
+
+            if(currentTime - disabledTime < fifteenMinutes) {
+                const remainingTime = Math.ceil((fifteenMinutes - (currentTime - disabledTime)) / 1000 / 60);
+                return NextResponse.json({
+                    error: `Account is locked due to multiple failed login attempts. Please try again in ${remainingTime} minute(s).`,
+                    status: 403
+                })
+            } else {
+                // 15 minutes have passed, re-enable the account
+                userExist.isAccountDisabled = false;
+                userExist.accountDisabledAt = null;
+                userExist.failedLoginAttempts = 0;
+                await userExist.save();
+            }
+        }
+
         const isMatch = await bcrypt.compare(password, userExist.password);
 
         if(!isMatch) {
+            // Increment failed login attempts
+            userExist.failedLoginAttempts += 1;
+
+            // Disable account after 5 failed attempts
+            if(userExist.failedLoginAttempts >= 5) {
+                userExist.isAccountDisabled = true;
+                userExist.accountDisabledAt = new Date();
+            }
+
+            await userExist.save();
             return NextResponse.json({error: "Invalid username and/or password.", status: 401})
         }
+
+        // Reset failed login attempts on successful login
+        userExist.failedLoginAttempts = 0;
+        await userExist.save();
 
         // Create JWT
         const token = jwt.sign(

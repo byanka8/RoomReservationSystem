@@ -12,7 +12,10 @@ const userSchema = new mongoose.Schema(
         securityAnswer: { type: String },
         resetToken: { type: String, default: null },
         resetTokenExpiry: { type: Number, default: null },
-        passwordChangedAt: { type: Date, default: null }
+        passwordChangedAt: { type: Date, default: null },
+        failedLoginAttempts: { type: Number, default: 0 },
+        isAccountDisabled: { type: Boolean, default: false },
+        accountDisabledAt: { type: Date, default: null }
     },
     { timestamps: true } // for createdAt and updatedAt
 )
