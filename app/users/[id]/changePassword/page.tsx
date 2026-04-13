@@ -1,16 +1,56 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+
+type User = {
+  _id: string;
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+  avatar: string;
+};
 
 export default function ChangePassword() {
-  const { user } = useAuth();
+  // const { user } = useAuth();
+  const params = useParams();
   const router = useRouter();
+  
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+      if (!params?.id) {
+        setError("No user ID provided");
+        setLoading(false);
+        return;
+      }
+  
+      const fetchUser = async () => {
+        try {
+          const res = await fetch(`/api/users/${params.id}`);
+          if (!res.ok) throw new Error("User not found");
+          const data = await res.json();
+          setUser(data);
+        } catch (err: any) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchUser();
+    }, [params?.id]);
+  
+    if (loading) return <p className="p-8">Loading...</p>;
+    if (error) return <p className="p-8 text-red-600">{error}</p>;
+    if (!user) return <p className="p-8">No user data found</p>;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

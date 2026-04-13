@@ -7,6 +7,8 @@ type User = {
   name: string;
   email: string;
   role: "user" | "manager" | "admin";
+  lastLoginAt?: string;
+  lastFailedLoginAt?: string;
 };
 
 type AuthContextType = {
@@ -14,6 +16,8 @@ type AuthContextType = {
   loading: boolean;
   refreshUser: () => Promise<void>;
   logout: () => Promise<void>;
+  showBanner: boolean;
+  setShowBanner: (value: boolean) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,6 +25,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showBanner, setShowBanner] = useState(true);
 
   const refreshUser = async () => {
     try {
@@ -31,6 +36,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         setUser(data.user);
+        setShowBanner(true);
+
         console.log(data.user.name +  ' user saved')
       } else {
         setUser(null);
@@ -55,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, refreshUser, logout }}>
+    <AuthContext.Provider value={{ user, loading, refreshUser, logout, showBanner, setShowBanner }}>
       {children}
     </AuthContext.Provider>
   );

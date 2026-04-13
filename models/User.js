@@ -15,7 +15,18 @@ const userSchema = new mongoose.Schema(
         passwordChangedAt: { type: Date, default: null },
         failedLoginAttempts: { type: Number, default: 0 },
         isAccountDisabled: { type: Boolean, default: false },
-        accountDisabledAt: { type: Date, default: null }
+        accountDisabledAt: { type: Date, default: null },
+        lastLoginAt: { type: Date, default: null },
+        lastFailedLoginAt: { type: Date, default: null },
+        passwordHistory: {
+            type: [
+                {
+                password: { type: String, required: true }, // store hashed password
+                changedAt: { type: Date, required: true },  // when it was set
+                }
+            ],
+            default: [],
+        }
     },
     { timestamps: true } // for createdAt and updatedAt
 )

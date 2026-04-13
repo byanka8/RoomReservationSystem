@@ -21,8 +21,32 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Incorrect current password" }, { status: 401 });
   }
 
-  // Step 3: Update password
+  // check if password is reuse
+  const isReuse = await Promise.all(
+  user.passwordHistory.map(async (h : any) => {
+    return await bcrypt.compare(newPassword, h.password);
+    })
+  );
+
+  if (isReuse.some((match) => match)) {
+    return NextResponse.json({ error: "You cannot reuse your previous 5 passwords." }, { status: 403 });
+  }
+
+  // hash new password
   const hashed = await bcrypt.hash(newPassword, 10);
+
+  // Add current password to history before overwriting
+  if (user.password) {
+    user.passwordHistory.unshift({
+      password: user.password, // old hashed password
+      changedAt: user.passwordChangedAt || new Date(),
+    });
+
+    // Keep only last 5 passwords
+    user.passwordHistory = user.passwordHistory.slice(0, 5);
+  }
+
+  // Update current password
   user.password = hashed;
   user.passwordChangedAt = new Date(); // track change time
   await user.save();

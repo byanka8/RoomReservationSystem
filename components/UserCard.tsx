@@ -61,7 +61,7 @@ export default function UserCard({ user }: { user: User }) {
           View
         </a>
 
-        <a
+        {/* <a
           href={`/users/${user._id}/edit`}
           className="px-2 py-1 bg-blue-500 text-white rounded"
         >
@@ -72,18 +72,20 @@ export default function UserCard({ user }: { user: User }) {
           onClick={() => {
             setMethod("change");
             // Check if password is at least 1 day old
-            if (user.passwordChangedAt) {
-              const changedAt = new Date(user.passwordChangedAt); // convert from string
-              const oneDay = 24 * 60 * 60 * 1000;
-              if (Date.now() - changedAt.getTime() < oneDay) {
-                alert("Password must be at least 1 day old before changing.");
-              } else {
-                setShowReAuth(true);
-              }
-            } else {
-              // passwordChangedAt is null
-              setShowReAuth(true);
-            }
+            // if (user.passwordChangedAt) {
+            //   const changedAt = new Date(user.passwordChangedAt); // convert from string
+            //   const oneDay = 24 * 60 * 60 * 1000;
+            //   if (Date.now() - changedAt.getTime() < oneDay) {
+            //     alert("Password must be at least 1 day old before changing.");
+            //   } else {
+            //     setShowReAuth(true);
+            //   }
+            // } else {
+            //   // passwordChangedAt is null
+            //   setShowReAuth(true);
+            // }
+
+            setShowReAuth(true);
           }}
           className="px-2 py-1 bg-blue-500 text-white rounded"
         >
@@ -98,7 +100,7 @@ export default function UserCard({ user }: { user: User }) {
           className="px-2 py-1 bg-red-500 text-white rounded"
         >
           Delete
-        </button>
+        </button> */}
       </div>
 
       {showReAuth && (

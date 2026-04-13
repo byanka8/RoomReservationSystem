@@ -13,7 +13,7 @@ export async function POST(request: Request) {
         const {email, password} = await request.json()
         const userExist = await User.findOne({email})
 
-
+        // user does not exist
         if(!userExist) {
             return NextResponse.json({error: "Invalid username and/or password.", status: 401})
         }
@@ -44,6 +44,8 @@ export async function POST(request: Request) {
         if(!isMatch) {
             // Increment failed login attempts
             userExist.failedLoginAttempts += 1;
+            // save latest failed login attempt date
+            userExist.lastFailedLoginAt = new Date();
 
             // Disable account after 5 failed attempts
             if(userExist.failedLoginAttempts >= 5) {
@@ -57,6 +59,9 @@ export async function POST(request: Request) {
 
         // Reset failed login attempts on successful login
         userExist.failedLoginAttempts = 0;
+        // Save latest successful login date
+        userExist.lastLoginAt = new Date();
+
         await userExist.save();
 
         // Create JWT
