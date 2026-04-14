@@ -1,8 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import Header from "@/components/Header";
+import Navbar from "@/components/Navbar";
 import ReAuthModal from "@/components/ReAuthModal";
+import { useAuth } from "@/context/AuthContext";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 type User = {
   _id: string;
@@ -16,11 +20,13 @@ type User = {
 export default function ViewUserClient() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromProfile = searchParams.get("from") === "profile";
+  const { user: authUser, loading: authLoading } = useAuth();
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const [showReAuth, setShowReAuth] = useState(false);
   const [method, setMethod] = useState("");
 
@@ -47,102 +53,149 @@ export default function ViewUserClient() {
     fetchUser();
   }, [params?.id]);
 
-  if (loading) return <p className="p-8">Loading...</p>;
-  if (error) return <p className="p-8 text-red-600">{error}</p>;
-  if (!user) return <p className="p-8">No user data found</p>;
-
   const handleDelete = async () => {
+    if (!user) return;
+    if (!confirm(`Are you sure you want to delete "${user.name}"?`)) return;
 
-      if (!confirm(`Are you sure you want to delete "${user.name}"?`)) return;
+    try {
+      const res = await fetch(`/api/users/${user._id}`, {
+        method: "DELETE",
+      });
 
-      try {
-        const res = await fetch(`/api/users/${user._id}`, {
-          method: "DELETE",
-        });
-
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || "Failed to delete user account");
-        } else {
-          alert("User deleted successfully.");
-          // Refresh the page or remove from state
-        }
-        router.refresh();
-
-      } catch (err: any) {
-        alert(err.message);
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to delete user account");
       }
+
+      router.push("/users");
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message);
+    }
   };
 
-  return (
-    <div className="p-8 max-w-xl mx-auto shadow rounded bg-white">
-      <h1 className="text-3xl font-bold mb-4">{user.name}</h1>
-      <p><strong>Email:</strong> {user.email}</p>
-      {/* <p><strong>Password:</strong> {user.password}</p> */}
-      <p><strong>Role:</strong> {user.role}</p>
-      <p><strong>Avatar:</strong> {user.avatar}</p>
-
-      {/* Optional: Back button */}
-      <button
-        className="mt-4 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-        onClick={() => router.push("/users")}
-      >
-        Go Back
-      </button>
-
-      {/* Edit and Delete */}
-      <div className="mt-2 flex gap-2">
-
-        <a
-          href={`/users/${user._id}/edit`}
-          className="px-2 py-1 bg-blue-500 text-white rounded"
-        >
-          Edit
-        </a>
-
-        <button
-          onClick={() => {
-            setMethod("change");
-            // Check if password is at least 1 day old
-            // if (user.passwordChangedAt) {
-            //   const changedAt = new Date(user.passwordChangedAt); // convert from string
-            //   const oneDay = 24 * 60 * 60 * 1000;
-            //   if (Date.now() - changedAt.getTime() < oneDay) {
-            //     alert("Password must be at least 1 day old before changing.");
-            //   } else {
-            //     setShowReAuth(true);
-            //   }
-            // } else {
-            //   // passwordChangedAt is null
-            //   setShowReAuth(true);
-            // }
-
-            setShowReAuth(true);
-          }}
-          className="px-2 py-1 bg-blue-500 text-white rounded"
-        >
-          Change Password
-        </button>
-
-        <button
-          onClick={() => { 
-            setMethod("delete");
-            setShowReAuth(true) 
-          }}
-          className="px-2 py-1 bg-red-500 text-white rounded"
-        >
-          Delete
-        </button>
+  if (authLoading || loading) {
+    return (
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4 py-12">
+        <div className="rounded-3xl border border-slate-200 bg-white/95 p-8 shadow-2xl shadow-slate-200/40">
+          <p className="text-sm text-slate-500">Loading user details...</p>
+        </div>
       </div>
+    );
+  }
+
+  if (!authUser) {
+    return (
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4 py-12">
+        <div className="rounded-3xl border border-slate-200 bg-white/95 p-8 shadow-2xl shadow-slate-200/40">
+          <p className="text-sm text-slate-500">Please login to view user details.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4 py-12">
+        <div className="rounded-3xl border border-slate-200 bg-white/95 p-8 shadow-2xl shadow-slate-200/40">
+          <p className="text-sm text-rose-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4 py-12">
+        <div className="rounded-3xl border border-slate-200 bg-white/95 p-8 shadow-2xl shadow-slate-200/40">
+          <p className="text-sm text-slate-500">No user data found.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <Header />
+      <Navbar role={authUser.role} />
+
+      <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="rounded-[1.75rem] border border-slate-200 bg-white/95 p-8 shadow-2xl shadow-slate-200/40">
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-sky-500">User details</p>
+              <h1 className="mt-3 text-3xl font-semibold text-slate-900">{user.name}</h1>
+              <p className="mt-2 text-sm text-slate-500">View profile information and take actions for this account.</p>
+            </div>
+            {!fromProfile && (
+              <button
+                type="button"
+                onClick={() => router.push("/users")}
+                className="inline-flex items-center rounded-full bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+              >
+                Back to user list
+              </button>
+            )}
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div className="space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-6">
+              <div>
+                <p className="text-sm text-slate-500">Email</p>
+                <p className="mt-1 text-lg font-medium text-slate-900">{user.email}</p>
+              </div>
+              <div>
+                <p className="text-sm text-slate-500">Role</p>
+                <p className="mt-1 text-lg font-medium text-slate-900">{user.role}</p>
+              </div>
+              <div>
+                <p className="text-sm text-slate-500">Avatar URL</p>
+                <p className="mt-1 text-lg font-medium text-slate-900 break-all">{user.avatar || "—"}</p>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <p className="text-sm font-medium text-slate-700">Actions</p>
+              <div className="mt-4 flex flex-col gap-3">
+                <Link
+                  href={`/users/${user._id}/edit`}
+                  className="inline-flex w-full items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                >
+                  Edit user
+                </Link>
+                <button
+                  onClick={() => {
+                    setMethod("change");
+                    setShowReAuth(true);
+                  }}
+                  className="inline-flex w-full items-center justify-center rounded-full bg-sky-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-600"
+                >
+                  Change password
+                </button>
+                <button
+                  onClick={() => {
+                    setMethod("delete");
+                    setShowReAuth(true);
+                  }}
+                  className="inline-flex w-full items-center justify-center rounded-full bg-rose-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-600"
+                >
+                  Delete user
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
 
       {showReAuth && (
         <ReAuthModal
           onVerified={() => {
             setShowReAuth(false);
-            if (method == "change")
-              router.push(`/users/${user._id}/changePassword`)
-            else if (method == "delete")
+            if (method === "change") {
+              router.push(`/users/${user._id}/changePassword`);
+            } else if (method === "delete") {
               handleDelete();
+            }
           }}
         />
       )}

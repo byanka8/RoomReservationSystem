@@ -7,6 +7,15 @@ import { useAuth } from "@/context/AuthContext";
 
 type UserType = { _id: string; name: string };
 
+type ReservationFormData = {
+  roomId: string;
+  userId: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  status: "pending" | "confirmed" | "cancelled";
+};
+
 type ReservationFormProps = {
   initialData?: {
     _id: string;
@@ -17,9 +26,10 @@ type ReservationFormProps = {
     endTime: string;
     status: "pending" | "confirmed" | "cancelled";
   };
+  onSubmit?: (data: ReservationFormData, isEditMode: boolean) => Promise<void>;
 };
 
-export function ReservationForm({ initialData }: ReservationFormProps) {
+export function ReservationForm({ initialData, onSubmit }: ReservationFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
@@ -79,11 +89,9 @@ export function ReservationForm({ initialData }: ReservationFormProps) {
     setError(null);
 
     if (!user) {
-      setError("You must be logged in");
+      setError("You must be logged in to create a reservation.");
       return;
     }
-
-    console.log(user._id);
 
     const userIdToSubmit = canManage ? selectedUserId : user._id;
     if (!userIdToSubmit) {
@@ -97,7 +105,7 @@ export function ReservationForm({ initialData }: ReservationFormProps) {
     }
 
     try {
-      const payload = {
+      const payload: ReservationFormData = {
         roomId,
         userId: userIdToSubmit,
         date,
@@ -106,7 +114,9 @@ export function ReservationForm({ initialData }: ReservationFormProps) {
         status,
       };
 
-      if (isEditMode && initialData?._id) {
+      if (onSubmit) {
+        await onSubmit(payload, isEditMode);
+      } else if (isEditMode && initialData?._id) {
         await axios.put(`/api/reservations/${initialData._id}`, payload);
       } else {
         await axios.post("/api/reservations", payload);
@@ -120,34 +130,47 @@ export function ReservationForm({ initialData }: ReservationFormProps) {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-96">
-        <h1 className="text-2xl font-bold mb-6">
-          {isEditMode ? "Edit Reservation" : "Create Reservation"}
-        </h1>
+    <div className="mx-auto max-w-xl px-4 py-10 sm:px-6 lg:px-8">
+      <form onSubmit={handleSubmit} className="space-y-6 rounded-3xl bg-white p-8 shadow-lg">
+        <div>
+          <h1 className="text-3xl font-semibold text-slate-900">
+            {isEditMode ? "Edit Reservation" : "New Reservation"}
+          </h1>
+          <p className="mt-2 text-sm text-slate-500">
+            {isEditMode
+              ? "Adjust booking details for this reservation."
+              : "Select a room, date and time to confirm your booking."}
+          </p>
+        </div>
 
         {/* Room */}
-        <div className="mb-4">
-          <label>Room</label>
+        <div>
+          <label htmlFor="room-name" className="block text-sm font-medium text-slate-700">
+            Room
+          </label>
           <input
+            id="room-name"
             type="text"
             value={roomName}
             readOnly
-            className="w-full border px-3 py-2 rounded bg-gray-100"
+            className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-900 outline-none"
           />
         </div>
 
         {/* User dropdown for admin/manager */}
         {canManage && (
-          <div className="mb-4">
-            <label>Select User</label>
+          <div>
+            <label htmlFor="user" className="block text-sm font-medium text-slate-700">
+              User
+            </label>
             <select
+              id="user"
               value={selectedUserId}
               onChange={(e) => setSelectedUserId(e.target.value)}
-              className="w-full border px-3 py-2 rounded"
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
               required
             >
-              <option value="">Choose User</option>
+              <option value="">Choose user</option>
               {users.map((u) => (
                 <option key={u._id} value={u._id}>
                   {u.name}
@@ -158,51 +181,63 @@ export function ReservationForm({ initialData }: ReservationFormProps) {
         )}
 
         {/* Date */}
-        <div className="mb-4">
-          <label>Date</label>
+        <div>
+          <label htmlFor="reservation-date" className="block text-sm font-medium text-slate-700">
+            Date
+          </label>
           <input
+            id="reservation-date"
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full border px-3 py-2 rounded"
+            className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
             required
           />
         </div>
 
         {/* Start Time */}
-        <div className="mb-4">
-          <label>Start Time</label>
+        <div>
+          <label htmlFor="reservation-start" className="block text-sm font-medium text-slate-700">
+            Start Time
+          </label>
           <input
+            id="reservation-start"
             type="time"
             value={startTime}
             onChange={(e) => setStartTime(e.target.value)}
-            className="w-full border px-3 py-2 rounded"
+            className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
             required
           />
         </div>
 
         {/* End Time */}
-        <div className="mb-4">
-          <label>End Time</label>
+        <div>
+          <label htmlFor="reservation-end" className="block text-sm font-medium text-slate-700">
+            End Time
+          </label>
           <input
+            id="reservation-end"
             type="time"
             value={endTime}
             onChange={(e) => setEndTime(e.target.value)}
-            className="w-full border px-3 py-2 rounded"
+            className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
             required
           />
         </div>
 
         {/* Status dropdown for admin/manager */}
         {canManage && (
-          <div className="mb-4">
-            <label>Status</label>
+          <div>
+            <label htmlFor="reservation-status" className="block text-sm font-medium text-slate-700">
+              Status
+            </label>
             <select
+              id="reservation-status"
               value={status}
               onChange={(e) =>
                 setStatus(e.target.value as "pending" | "confirmed" | "cancelled")
               }
-              className="w-full border px-3 py-2 rounded"
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200"
             >
               <option value="pending">Pending</option>
               <option value="confirmed">Confirmed</option>
@@ -211,9 +246,12 @@ export function ReservationForm({ initialData }: ReservationFormProps) {
           </div>
         )}
 
-        {error && <p className="text-red-600 mb-3">{error}</p>}
+        {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded">
+        <button
+          type="submit"
+          className="w-full rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+        >
           {isEditMode ? "Update Reservation" : "Confirm Reservation"}
         </button>
       </form>

@@ -1,24 +1,51 @@
-import { useAuth } from "@/context/AuthContext";
+"use client";
+
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
+export default function Header() {
+  const { user, logout } = useAuth();
+  const router = useRouter();
 
-export default function Header({ user, onLogout }: { user: { name: string; role: string }; onLogout: () => void }) {
-    const { logout } = useAuth();
-    const router = useRouter();
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  };
 
-    const handleLogout = () => {
-        logout();
-        router.push("/login");
-    };
-  
-    return (
-    <header className="flex justify-between items-center p-4 bg-gray-100 shadow">
-      <h1 className="text-xl font-bold">Room Reservation</h1>
-      <div className="flex items-center space-x-4">
-        <span>{user.name} ({user.role})</span>
-        <button className="bg-red-500 text-white px-3 py-1 rounded" onClick={handleLogout}>
-          Logout
-        </button>
+  return (
+    <header className="border-b border-slate-200 bg-white shadow-sm">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <div>
+          <Link href="/" className="text-2xl font-semibold tracking-tight text-slate-900">
+            Room Reservation
+          </Link>
+          <p className="text-sm text-slate-500">Manage rooms, users, and bookings in one place.</p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {user ? (
+            <>
+              <div className="rounded-full bg-slate-100 px-3 py-2 text-sm text-slate-700">
+                {user.name} • {user.role}
+              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="rounded-full bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+            >
+              Log In
+            </Link>
+          )}
+        </div>
       </div>
     </header>
   );

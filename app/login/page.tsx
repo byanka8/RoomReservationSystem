@@ -1,108 +1,101 @@
-"use client" // this tells Next.js that this component runs in the browser, not on the server.
+"use client";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import AuthForm from "@/components/AuthForm";
 
 export default function LoginPage() {
-
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [error, setError] = useState<string | null>(null);
-    const router = useRouter()
-    const { refreshUser } = useAuth();
-    const { user } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { refreshUser } = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setError(null);
+      e.preventDefault();
+      setError(null);
 
-        const response = await axios.post('/api/login', {email, password}, { withCredentials: true }) // creates api folder inside register folder
-        console.log(response)
-        if(response.data.status==201) {
-            await refreshUser();
+      try {
+        const response = await axios.post(
+          "/api/login",
+          { email, password },
+          { withCredentials: true }
+        );
 
-            // small delay ensures cookie is ready
-            setTimeout(() => {
-                const role = response.data.user.role;
+        if (response.data.status === 201) {
+          await refreshUser();
 
-                if (role === "admin") router.push('/dashboard/admin');
-                else if (role === "manager") router.push('/dashboard/manager');
-                else router.push('/dashboard/user');
-                }, 100);
+          setTimeout(() => {
+            const role = response.data.user.role;
+            if (role === "admin") router.push("/dashboard/admin");
+            else if (role === "manager") router.push("/dashboard/manager");
+            else router.push("/dashboard/user");
+          }, 100);
         } else {
-            setError(response.data.error || "Login failed");
-            setEmail("");       // clear email field
-            setPassword("");    // clear password field
+          setError(response.data.error || "Login failed");
         }
-    }
+      } catch (err: any) {
+        setError(err?.response?.data?.error || err.message || "Login failed");
+      }
+    };
 
-    return(
-        <div className="flex justify-center items-center h-screen">
-            <form 
-            onSubmit={handleSubmit}
-                className="big-white p-8 rounded shadow-md w-96">
-                <h1 className="text-2xl font-bold mb-6">Log In</h1>
-                <div className="mb-4">
-                    <label className="block text-gray-700">Email</label>
-                    <input 
-                      type="email"
-                      placeholder="Enter Email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-3 py-2 border rounded"
-                      required
-                    />
-                </div>
-                <div className="mb-4">
-                    <label className="block text-gray-700">Password</label>
-                    <input 
-                      type="password"
-                      placeholder="Enter Password"
-                      value={password} 
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-3 py-2 border rounded"
-                      required
-                    />
-                </div>
-                <div className="mb-4">
-                    <p className="text-right text-sm mt-1">
-                        <Link 
-                            href="/forgotPassword" 
-                            className="text-blue-600 hover:underline"
-                        >
-                            Forgot Password?
-                        </Link>
-                    </p>
-                </div>
+    return (
+      <AuthForm
+        title="Welcome back"
+        subtitle="Log in to manage your rooms and reservations"
+        footer={
+          <p>
+            New to the platform?{' '}
+            <Link href="/register" className="text-sky-600 hover:underline">
+              Create an account
+            </Link>
+          </p>
+        }
+      >
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+              required
+            />
+          </div>
 
-                {error && <p className="text-red-600">{error}</p>}
-                
-                {/* Register or submit button will be passed to the server side. */}
-                <button className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition">
-                    Log In
-                </button>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+              required
+            />
+          </div>
 
-                <p className="py-2">
-                    New to Roser?{" "}
-                    <Link href="/register" className="text-blue-600 underline hover:text-blue-800">
-                        Create New Account
-                    </Link>
-                </p>
-                
-            </form>
-        </div>
-    
-    )
+          <div className="flex items-center justify-between">
+            <div />
+            <Link href="/forgotPassword" className="text-sm text-sky-600 hover:underline">
+              Forgot password?
+            </Link>
+          </div>
+
+          {error && <p className="text-sm text-rose-600">{error}</p>}
+
+          <button
+            type="submit"
+            className="w-full rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+          >
+            Log in
+          </button>
+        </form>
+      </AuthForm>
+    );
 }
 
-// const LoginPage = () => {
-//     return (
-//         <div className='text-3xl'>Login Page</div>
-//     )
-// }
-
-// export default LoginPage
-
-// ------ OR ------
