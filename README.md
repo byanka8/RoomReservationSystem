@@ -6,8 +6,8 @@ Users, including students, faculty, and staff, can reserve rooms for various pur
 
 ---
 ## Contributors
-- [Bea Sollesta](https://github.com/MoominHana) (frontend)
-- [Bianca Sollesta](https://github.com/byanka8) (backend)
+- [Bea Sollesta](https://github.com/MoominHana)
+- [Bianca Sollesta](https://github.com/byanka8)
 
 ## Table of Contents
 - Features
