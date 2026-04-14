@@ -23,6 +23,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
 
+  // Validate that endTime is after startTime
+  if (endTime <= startTime) {
+    return NextResponse.json({ error: "End time must be after start time" }, { status: 400 });
+  }
+
   const room = await Room.findById(roomId);
   if (!room) {
     return NextResponse.json({ error: "Invalid room" }, { status: 400 });

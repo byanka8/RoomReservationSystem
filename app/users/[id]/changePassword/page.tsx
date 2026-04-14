@@ -12,6 +12,22 @@ type User = {
   avatar: string;
 };
 
+const isValidPassword = (password: string): boolean => {
+    // Check length
+    if (password.length < 8) return false;
+    
+    // Check for at least one uppercase letter
+    if (!/[A-Z]/.test(password)) return false;
+    
+    // Check for at least one lowercase letter
+    if (!/[a-z]/.test(password)) return false;
+    
+    // Check for at least one special character
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) return false;
+    
+    return true;
+};
+
 export default function ChangePassword() {
   const params = useParams();
   const router = useRouter();
@@ -81,6 +97,12 @@ export default function ChangePassword() {
     setError(null);
     setSuccessMessage(null);
 
+    // Validate new password
+    if (!isValidPassword(newPassword)) {
+      setError("Password must contain at least 8 characters, one uppercase letter, one lowercase letter, and one special character.");
+      return;
+    }
+
     const res = await fetch("/api/changePassword", {
       method: "POST",
       body: JSON.stringify({ currentPassword, newPassword, userId: user._id }),
@@ -134,7 +156,7 @@ export default function ChangePassword() {
               required
             />
             <p className="mt-3 text-sm text-slate-500">
-              Use at least 8 characters, including a mix of letters and numbers.
+              Password must be at least 8 characters and include uppercase, lowercase, and a special character.
             </p>
           </div>
 
