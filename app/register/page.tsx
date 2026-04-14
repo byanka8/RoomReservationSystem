@@ -28,7 +28,9 @@ export default function Registration() {
     const [password, setPassword] = useState('')
     const [error, setError] = useState('');
     const router = useRouter()
-    const { login } = useAuth();
+    const { refreshUser } = useAuth(); 
+    const [securityQuestion, setSecurityQuestion] = useState('');
+    const [securityAnswer, setSecurityAnswer] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -39,16 +41,19 @@ export default function Registration() {
             return;
         }
 
-        const response = await axios.post('/api/register', {name, email, password}) // creates api folder inside register folder
+        const response = await axios.post('/api/register', {name, email, password, securityQuestion, securityAnswer}) // creates api folder inside register folder
         console.log(response)
         if(response.data.status==201) {
-            login(response.data.user);
-            if(response.data.user.role == "admin")
-                router.push('/dashboard/admin')
-            else if(response.data.user.role == "manager")
-                router.push('/dashboard/manager')
-            else if(response.data.user.role == "user")
-                router.push('/dashboard/user')
+            await refreshUser();
+
+            // small delay ensures cookie is ready
+            setTimeout(() => {
+                const role = response.data.user.role;
+
+                if (role === "admin") router.push('/dashboard/admin');
+                else if (role === "manager") router.push('/dashboard/manager');
+                else router.push('/dashboard/user');
+            }, 100);
         } else {
             setError(response.data.error || "Register failed");
             setName("");
@@ -104,6 +109,35 @@ export default function Registration() {
                         <li>At least one lowercase letter</li>
                         <li>At least one special character</li>
                     </ul>
+                </div>
+
+                <div className="mb-4">
+                    <label className="block text-gray-700">Security Question</label>
+                    <select
+                        value={securityQuestion}
+                        onChange={(e) => setSecurityQuestion(e.target.value)}
+                        className="w-full px-3 py-2 border rounded"
+                        required
+                    >
+                        <option value="">Select a question</option>
+                        <option>What is your first pet's name?</option>
+                        <option>What was the name of your first school?</option>
+                        <option>What city were you born in?</option>
+                        <option>What is your favorite food?</option>
+                    </select>
+                </div>
+
+                <div className="mb-4">
+                    <label className="block text-gray-700">Answer</label>
+                    <input
+                        type="text"
+                        placeholder="Enter your answer"
+                        value={securityAnswer}
+                        onChange={(e) => setSecurityAnswer(e.target.value)}
+                        className="w-full px-3 py-2 border rounded"
+                        required
+                    />
+                    <p className="text-sm text-gray-500">Use an answer only you know. Avoid common answers.</p>
                 </div>
 
                 {error && <p className="text-red-600">{error}</p>}

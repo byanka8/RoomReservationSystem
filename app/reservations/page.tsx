@@ -62,7 +62,17 @@ export default function ReservationsPage() {
         </button>
 
         <button
-          onClick={() => router.back()}
+          onClick={() => {
+            if (user.role === "admin") {
+              router.push("/dashboard/admin");
+            } else if (user.role === "manager") {
+              router.push("/dashboard/manager");
+            } else if (user.role === "user") {
+              router.push("/dashboard/user");
+            } else {
+              console.warn("Unknown role:", user.role);
+            }
+          }}
           className="px-3 py-1 bg-gray-500 text-white rounded"
         >
           Back

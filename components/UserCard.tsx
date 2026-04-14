@@ -1,5 +1,8 @@
 // components/rooms/UserCard.tsx
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import ReAuthModal from "./ReAuthModal";
+import { useAuth } from "@/context/AuthContext";
 
 type User = {
   _id: string;
@@ -8,13 +11,17 @@ type User = {
   password: string;
   role: string,
   avatar: string;
+  passwordChangedAt: Date;
 };
 
 export default function UserCard({ user }: { user: User }) {
 
   const router = useRouter();
+  const [showReAuth, setShowReAuth] = useState(false);
+  const [method, setMethod] = useState("");
 
   const handleDelete = async () => {
+
       if (!confirm(`Are you sure you want to delete "${user.name}"?`)) return;
 
       try {
@@ -25,14 +32,16 @@ export default function UserCard({ user }: { user: User }) {
         if (!res.ok) {
           const data = await res.json();
           throw new Error(data.error || "Failed to delete user account");
+        } else {
+          alert("User deleted successfully.");
+          // Refresh the page or remove from state
         }
-
-        // Refresh the page or remove from state
         router.refresh();
+
       } catch (err: any) {
         alert(err.message);
       }
-   };
+  };
 
   return (
     <div style={{ border: '1px solid #ddd', padding: 16, borderRadius: 8 }}>
@@ -52,7 +61,7 @@ export default function UserCard({ user }: { user: User }) {
           View
         </a>
 
-        <a
+        {/* <a
           href={`/users/${user._id}/edit`}
           className="px-2 py-1 bg-blue-500 text-white rounded"
         >
@@ -60,12 +69,51 @@ export default function UserCard({ user }: { user: User }) {
         </a>
 
         <button
-          onClick={handleDelete}
+          onClick={() => {
+            setMethod("change");
+            // Check if password is at least 1 day old
+            // if (user.passwordChangedAt) {
+            //   const changedAt = new Date(user.passwordChangedAt); // convert from string
+            //   const oneDay = 24 * 60 * 60 * 1000;
+            //   if (Date.now() - changedAt.getTime() < oneDay) {
+            //     alert("Password must be at least 1 day old before changing.");
+            //   } else {
+            //     setShowReAuth(true);
+            //   }
+            // } else {
+            //   // passwordChangedAt is null
+            //   setShowReAuth(true);
+            // }
+
+            setShowReAuth(true);
+          }}
+          className="px-2 py-1 bg-blue-500 text-white rounded"
+        >
+          Change Password
+        </button>
+
+        <button
+          onClick={() => { 
+            setMethod("delete");
+            setShowReAuth(true) 
+          }}
           className="px-2 py-1 bg-red-500 text-white rounded"
         >
           Delete
-        </button>
+        </button> */}
       </div>
+
+      {showReAuth && (
+        <ReAuthModal
+          onVerified={() => {
+            setShowReAuth(false);
+            if (method == "change")
+              router.push("/changePassword")
+            else if (method == "delete")
+              handleDelete();
+          }}
+        />
+      )}
     </div>
   );
 }

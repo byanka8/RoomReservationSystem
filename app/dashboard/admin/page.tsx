@@ -11,14 +11,20 @@ export default function AdminDashboard() {
   const { user, loading } = useAuth();
 
   if (loading) return <p>Loading...</p>;
-  if (!user) return <p>Please login</p>;
+
+  // role-based protection (UI level)
+  if (user?.role !== "admin") {
+    return <p>Unauthorized</p>;
+  }
 
   return (
     <div>
       <Header user={user} onLogout={() => console.log("logout")} />
       <Navbar role={user.role} />
 
-      <h1 className="text-2xl font-bold mb-4 mt-4">Welcome {user.name}!</h1>
+      <h1 className="text-2xl font-bold mb-4 mt-4">
+        Welcome {user.name}!
+      </h1>
 
       <h2>Rooms</h2>
       <button
@@ -28,26 +34,21 @@ export default function AdminDashboard() {
         Manage rooms
       </button>
 
-      <br></br>
-
       <h2>Users</h2>
       <button
-          onClick={() => router.push("/users")}
-          className="px-2 py-1 mb-2 bg-blue-500 text-white rounded"
-        >
-          Manage users
+        onClick={() => router.push("/users")}
+        className="px-2 py-1 mb-2 bg-blue-500 text-white rounded"
+      >
+        Manage users
       </button>
-
-      <br></br>
 
       <h2>Reservations</h2>
       <button
-          onClick={() => router.push("/reservations")}
-          className="px-2 py-1 mb-2 bg-blue-500 text-white rounded"
-        >
-          Manage Reservations
+        onClick={() => router.push("/reservations")}
+        className="px-2 py-1 mb-2 bg-blue-500 text-white rounded"
+      >
+        Manage Reservations
       </button>
-      
     </div>
   );
 }

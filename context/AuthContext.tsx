@@ -3,14 +3,21 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 type User = {
-    _id: any; name: string; role: "user" | "manager" | "admin" 
+  _id: string;
+  name: string;
+  email: string;
+  role: "user" | "manager" | "admin";
+  lastLoginAt?: string;
+  lastFailedLoginAt?: string;
 };
 
 type AuthContextType = {
   user: User | null;
   loading: boolean;
-  login: (u: User) => void;
-  logout: () => void;
+  refreshUser: () => Promise<void>;
+  logout: () => Promise<void>;
+  showBanner: boolean;
+  setShowBanner: (value: boolean) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,30 +25,44 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showBanner, setShowBanner] = useState(true);
 
-  // Load user from localStorage on first render
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
+  const refreshUser = async () => {
+    try {
+      const res = await fetch("/api/me", {
+        credentials: "include",
+      });
 
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+        setShowBanner(true);
+
+        console.log(data.user.name +  ' user saved')
+      } else {
+        setUser(null);
+      }
+    } catch {
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
-  }, []);
-
-  const login = (u: User) => {
-    localStorage.setItem("user", JSON.stringify(u));
-    setUser(u);
   };
 
-  const logout = () => {
-    localStorage.removeItem("user");
+  const logout = async () => {
+    await fetch("/api/logout", {
+      method: "POST",
+      credentials: "include", // ensures cookie is sent
+    });
     setUser(null);
   };
 
+  useEffect(() => {
+    refreshUser();
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, refreshUser, logout, showBanner, setShowBanner }}>
       {children}
     </AuthContext.Provider>
   );
