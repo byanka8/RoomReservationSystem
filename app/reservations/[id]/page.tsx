@@ -138,6 +138,9 @@ export default function ViewReservationPage() {
       ? ""
       : reservation.userId?.email || "No email provided";
 
+  // Check if room is available (not deleted/unknown)
+  const isRoomAvailable = typeof reservation.roomId === "object" && reservation.roomId?.name && reservation.roomId?.location;
+
   return (
     <div className="min-h-screen bg-slate-50">
       <Header />
@@ -164,6 +167,9 @@ export default function ViewReservationPage() {
               <p className="text-sm text-slate-500">Room</p>
               <p className="mt-2 text-lg font-semibold text-slate-900">{roomName}</p>
               <p className="mt-1 text-sm text-slate-600">{roomLocation}</p>
+              {!isRoomAvailable && (
+                <p className="mt-2 text-sm text-amber-600 font-medium">⚠️ Room is no longer available</p>
+              )}
             </div>
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
               <p className="text-sm text-slate-500">Guest</p>
@@ -188,13 +194,20 @@ export default function ViewReservationPage() {
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={() => router.push(`/reservations/${reservation._id}/edit`)}
-              className="inline-flex items-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-            >
-              Edit reservation
-            </button>
+            {isRoomAvailable && (
+              <button
+                type="button"
+                onClick={() => router.push(`/reservations/${reservation._id}/edit`)}
+                className="inline-flex items-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                Edit reservation
+              </button>
+            )}
+            {!isRoomAvailable && (
+              <div className="inline-flex items-center rounded-full bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-500">
+                Edit unavailable - room deleted
+              </div>
+            )}
             <button
               type="button"
               onClick={handleReservationAction}

@@ -47,20 +47,37 @@ export default function ViewRoomClient() {
     fetchRoom();
   }, [params?.id]);
 
-  const handleDelete = async () => {
+  const handleDelete = async (forceDelete = false) => {
     if (!room) return;
-    if (!confirm(`Are you sure you want to delete "${room.name}"?`)) return;
+
+    const confirmMessage = forceDelete
+      ? `⚠️ FORCE DELETE: This will cancel ALL active reservations for "${room.name}" and delete the room. This action cannot be undone. Are you sure?`
+      : `Are you sure you want to delete "${room.name}"?`;
+
+    if (!confirm(confirmMessage)) return;
 
     try {
-      const res = await fetch(`/api/rooms/${room._id}`, {
+      const url = forceDelete ? `/api/rooms/${room._id}?force=true` : `/api/rooms/${room._id}`;
+      const res = await fetch(url, {
         method: "DELETE",
       });
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Failed to delete room");
+        if (res.status === 409 && data.canForceDelete && user?.role === 'admin') {
+          // Room has active reservations, offer force delete option
+          const forceConfirm = confirm(`${data.message}\n\nWould you like to FORCE DELETE this room? This will automatically cancel all ${data.activeReservations} active reservation(s).`);
+          if (forceConfirm) {
+            handleDelete(true); // Recursive call with force delete
+          }
+        } else {
+          throw new Error(data.error || "Failed to delete room");
+        }
+        return;
       }
 
+      const data = await res.json();
+      alert(data.message);
       router.push("/rooms");
       router.refresh();
     } catch (err: any) {
