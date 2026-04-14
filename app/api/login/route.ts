@@ -3,18 +3,30 @@ import connectToDatabase from "@/lib/db";
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { logAuthSuccess, logAuthFailure, getClientIp, logAccountDisabled, logValidationFailure } from "@/lib/logger";
 
 export async function POST(request: Request) {
     try {
 
         connectToDatabase();
 
+        // Get client IP
+        const ipAddress = getClientIp(request);
+
         // checks if user is already exisitng
         const {email, password} = await request.json()
+        
+        // Validate input
+        if (!email || !password) {
+            await logValidationFailure(email, ipAddress, "/api/login", "Missing email or password");
+            return NextResponse.json({error: "Invalid username and/or password.", status: 401})
+        }
+
         const userExist = await User.findOne({email})
 
         // user does not exist
         if(!userExist) {
+            await logAuthFailure(email, ipAddress, "User not found");
             return NextResponse.json({error: "Invalid username and/or password.", status: 401})
         }
 
@@ -26,6 +38,7 @@ export async function POST(request: Request) {
 
             if(currentTime - disabledTime < fifteenMinutes) {
                 const remainingTime = Math.ceil((fifteenMinutes - (currentTime - disabledTime)) / 1000 / 60);
+                await logAuthFailure(email, ipAddress, `Account locked. ${remainingTime} minutes remaining`);
                 return NextResponse.json({
                     error: `Account is locked due to multiple failed login attempts. Please try again in ${remainingTime} minute(s).`,
                     status: 403
@@ -50,10 +63,11 @@ export async function POST(request: Request) {
             // Disable account after 5 failed attempts
             if(userExist.failedLoginAttempts >= 5) {
                 userExist.isAccountDisabled = true;
-                userExist.accountDisabledAt = new Date();
+                await logAccountDisabled(userExist._id.toString(), email, ipAddress, "5 failed login attempts");
             }
 
             await userExist.save();
+            await logAuthFailure(email, ipAddress, `Password mismatch (attempt ${userExist.failedLoginAttempts})`);
             return NextResponse.json({error: "Invalid username and/or password.", status: 401})
         }
 
@@ -61,6 +75,9 @@ export async function POST(request: Request) {
         userExist.failedLoginAttempts = 0;
         // Save latest successful login date
         userExist.lastLoginAt = new Date();
+
+        // Log successful login
+        await logAuthSuccess(userExist._id.toString(), email, ipAddress);
 
         await userExist.save();
 

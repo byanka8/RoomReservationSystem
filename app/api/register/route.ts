@@ -3,16 +3,28 @@ import connectToDatabase from "@/lib/db";
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { logRegistration, getClientIp, logValidationFailure } from "@/lib/logger";
 
 export async function POST(request: Request) {
     try {
 
         connectToDatabase();
 
+        // Get client IP
+        const ipAddress = getClientIp(request);
+
         // checks if user is already exisitng
         const { name, email, password, securityQuestion, securityAnswer } = await request.json();
+        
+        // Validate input
+        if (!name || !email || !password || !securityQuestion || !securityAnswer) {
+            await logValidationFailure(email, ipAddress, "/api/register", "Missing required fields");
+            return NextResponse.json({error: "Please input valid credentials."})
+        }
+
         const userExistence = await User.findOne({email})
         if(userExistence) {
+            await logRegistration(email, ipAddress, false, "Email already exists");
             return NextResponse.json({error: "Please input valid credentials."})
         }
 
@@ -31,6 +43,9 @@ export async function POST(request: Request) {
             passwordChangedAt
         })
         await newUser.save()
+
+        // Log successful registration
+        await logRegistration(email, ipAddress, true);
 
         // Create JWT
         const token = jwt.sign(
@@ -59,10 +74,16 @@ export async function POST(request: Request) {
         maxAge: 60 * 60, // 1 hour
         path: "/",
         });
-
-        return response;
     
     } catch(err: any) {
+        // Log registration error
+        try {
+            const { email } = await request.json();
+            const ipAddress = getClientIp(request);
+            await logRegistration(email, ipAddress, false, err.message);
+        } catch(e) {
+            // Silently fail if we can't extract details
+        }
         return NextResponse.json({error: err.message, status: 500})
     }
 }

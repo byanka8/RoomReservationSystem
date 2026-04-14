@@ -179,7 +179,7 @@ export default function ViewRoomClient() {
             </button>
             <button
               type="button"
-              onClick={handleDelete}
+              onClick={() => handleDelete()}
               className="inline-flex items-center rounded-full bg-rose-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-600"
             >
               Delete room

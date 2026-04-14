@@ -29,6 +29,7 @@ const baseLinks: Record<Props["role"], NavLink[]> = {
     { label: "Manage Users", href: "/users" },
     { label: "Manage Rooms", href: "/rooms" },
     { label: "Reservations", href: "/reservations" },
+    { label: "System Logs", href: "/dashboard/admin/logs" },
   ],
 };
 
