@@ -32,39 +32,49 @@ export async function PUT(
 
     const updateData: any = {};
 
-    // Only update these if provided and not empty
-    if (body.name && body.name.trim() !== "") {
+    if (body.name !== undefined && body.name.trim() !== "") {
+      if (body.name.trim().length < 2 || body.name.trim().length > 100) {
+        return NextResponse.json({ error: "Name must be between 2 and 100 characters" }, { status: 400 });
+      }
       updateData.name = body.name;
     }
 
-    if (body.email && body.email.trim() !== "") {
+    if (body.email !== undefined && body.email.trim() !== "") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(body.email.trim())) {
+        return NextResponse.json({ error: "Please enter a valid email address" }, { status: 400 });
+      }
       updateData.email = body.email;
     }
 
-    if (body.role && body.role.trim() !== "") {
+    if (body.role !== undefined && body.role.trim() !== "") {
+      if (!["user", "manager", "admin"].includes(body.role)) {
+        return NextResponse.json({ error: "Role must be user, manager, or admin" }, { status: 400 });
+      }
       updateData.role = body.role;
     }
 
-    if (body.avatar && body.avatar.trim() !== "") {
+    if (body.avatar !== undefined && body.avatar.trim() !== "") {
       updateData.avatar = body.avatar;
     }
 
-    // Only hash if password exists AND not empty
-    if (body.password && body.password.trim() !== "") {
-      // Get current user to maintain password history
+    if (body.password !== undefined && body.password.trim() !== "") {
+      if (body.password.trim().length < 8) {
+        return NextResponse.json({ error: "Password must be at least 8 characters long" }, { status: 400 });
+      }
+
       const currentUser = await User.findById(id);
       if (currentUser && currentUser.password) {
         currentUser.passwordHistory.unshift({
-          password: currentUser.password, // old hashed password
+          password: currentUser.password,
           changedAt: currentUser.passwordChangedAt || new Date(),
         });
 
-        // Keep only last 5 passwords
         currentUser.passwordHistory = currentUser.passwordHistory.slice(0, 5);
       }
 
       updateData.password = await bcrypt.hash(body.password, 10);
-      updateData.passwordChangedAt = new Date(); // track change time
+      updateData.passwordChangedAt = new Date();
       updateData.passwordHistory = currentUser ? currentUser.passwordHistory : [];
     }
 

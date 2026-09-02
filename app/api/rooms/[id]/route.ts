@@ -29,6 +29,32 @@ export async function PUT(
     await connectToDatabase();
 
     const body = await request.json();
+
+    if (body.name !== undefined) {
+      const name = String(body.name).trim();
+      if (name.length < 2 || name.length > 100) {
+        return NextResponse.json({ error: "Room name must be between 2 and 100 characters" }, { status: 400 });
+      }
+    }
+
+    if (body.capacity !== undefined) {
+      const capacityNumber = Number(body.capacity);
+      if (!Number.isFinite(capacityNumber) || capacityNumber < 1 || capacityNumber > 200) {
+        return NextResponse.json({ error: "Capacity must be a number between 1 and 200" }, { status: 400 });
+      }
+    }
+
+    if (body.location !== undefined) {
+      const location = String(body.location).trim();
+      if (location.length < 2 || location.length > 200) {
+        return NextResponse.json({ error: "Location must be between 2 and 200 characters" }, { status: 400 });
+      }
+    }
+
+    if (body.description !== undefined && String(body.description).trim().length > 500) {
+      return NextResponse.json({ error: "Description cannot exceed 500 characters" }, { status: 400 });
+    }
+
     const updatedRoom = await Room.findByIdAndUpdate(id, body, { new: true });
 
     if (!updatedRoom) return NextResponse.json({ error: "Room not found" }, { status: 404 });
