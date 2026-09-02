@@ -45,17 +45,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Incorrect current password" }, { status: 401 });
     }
 
-    // check if password is reuse
+    // Check the current password and previous passwords for reuse
+    const passwordsToCheck = [
+      user.password,
+      ...(user.passwordHistory || []).map((historyEntry: { password: string }) => historyEntry.password),
+    ];
     const isReuse = await Promise.all(
-      user.passwordHistory.map(async (h : any) => {
-        return await bcrypt.compare(newPassword, h.password);
-      })
+      passwordsToCheck.map((passwordHash) => bcrypt.compare(newPassword, passwordHash))
     );
 
     if (isReuse.some((match) => match)) {
       await logPasswordChange(userId, user.email, ipAddress, false, "Password reuse detected");
       return NextResponse.json(
-        { error: "You cannot reuse your previous 5 passwords." },
+        { error: "New password cannot be one of your recently used passwords." },
         { status: 403 }
       );
     }
@@ -83,8 +85,9 @@ export async function POST(req: NextRequest) {
     await logPasswordChange(userId, user.email, ipAddress, true);
 
     return NextResponse.json({ message: "Password changed successfully" });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Password change error:", error);
-    return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
