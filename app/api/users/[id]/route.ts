@@ -51,7 +51,21 @@ export async function PUT(
 
     // Only hash if password exists AND not empty
     if (body.password && body.password.trim() !== "") {
+      // Get current user to maintain password history
+      const currentUser = await User.findById(id);
+      if (currentUser && currentUser.password) {
+        currentUser.passwordHistory.unshift({
+          password: currentUser.password, // old hashed password
+          changedAt: currentUser.passwordChangedAt || new Date(),
+        });
+
+        // Keep only last 5 passwords
+        currentUser.passwordHistory = currentUser.passwordHistory.slice(0, 5);
+      }
+
       updateData.password = await bcrypt.hash(body.password, 10);
+      updateData.passwordChangedAt = new Date(); // track change time
+      updateData.passwordHistory = currentUser ? currentUser.passwordHistory : [];
     }
 
     const updatedUser = await User.findByIdAndUpdate(id, updateData, { new: true });
