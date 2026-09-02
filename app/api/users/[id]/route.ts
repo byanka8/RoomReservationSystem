@@ -2,6 +2,7 @@ import User from "@/models/User";
 import connectToDatabase from "@/lib/db";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
+import { isPasswordComplexEnough, PASSWORD_POLICY_MESSAGE } from "@/lib/passwordPolicy";
 
 export async function GET(
   request: Request,
@@ -59,8 +60,9 @@ export async function PUT(
     }
 
     if (body.password !== undefined && body.password.trim() !== "") {
-      if (body.password.trim().length < 8) {
-        return NextResponse.json({ error: "Password must be at least 8 characters long" }, { status: 400 });
+      const passwordValue = String(body.password);
+      if (!isPasswordComplexEnough(passwordValue)) {
+        return NextResponse.json({ error: PASSWORD_POLICY_MESSAGE }, { status: 400 });
       }
 
       const currentUser = await User.findById(id);

@@ -4,6 +4,7 @@ import connectToDatabase from "@/lib/db";
 import bcrypt from "bcrypt";
 import { NextResponse, NextRequest } from "next/server";
 import { logPasswordChange, getClientIp, logValidationFailure } from "@/lib/logger";
+import { isPasswordComplexEnough, PASSWORD_POLICY_MESSAGE } from "@/lib/passwordPolicy";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,10 +13,14 @@ export async function POST(req: NextRequest) {
     const { currentPassword, newPassword, userId } = await req.json();
     const ipAddress = getClientIp(req);
 
-    // Validate input
     if (!currentPassword || !newPassword || !userId) {
       await logValidationFailure("unknown", ipAddress, "/api/changePassword", "Missing required fields", userId);
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    if (!isPasswordComplexEnough(newPassword)) {
+      await logValidationFailure(userId, ipAddress, "/api/changePassword", "Password policy failed");
+      return NextResponse.json({ error: PASSWORD_POLICY_MESSAGE }, { status: 400 });
     }
 
     const user = await User.findById(userId);

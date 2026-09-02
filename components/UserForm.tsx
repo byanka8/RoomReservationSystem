@@ -3,6 +3,7 @@
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { isPasswordComplexEnough, PASSWORD_POLICY_MESSAGE } from "@/lib/passwordPolicy";
 
 type User = {
   _id?: string;
@@ -73,8 +74,8 @@ export function UserForm({ initialData, onSubmit, submitLabel }: UserFormProps) 
       return;
     }
 
-    if (password && password.trim().length < 8) {
-      setError("Password must be at least 8 characters long.");
+    if (password && !isPasswordComplexEnough(password)) {
+      setError(PASSWORD_POLICY_MESSAGE);
       return;
     }
 

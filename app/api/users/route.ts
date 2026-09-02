@@ -2,6 +2,7 @@ import User from "@/models/User";
 import connectToDatabase from "@/lib/db";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
+import { isPasswordComplexEnough, PASSWORD_POLICY_MESSAGE } from "@/lib/passwordPolicy";
 
 function validateUserData(name: string, email: string, password: string, role: string) {
   if (!name || typeof name !== "string" || name.trim().length < 2 || name.trim().length > 100) {
@@ -13,8 +14,8 @@ function validateUserData(name: string, email: string, password: string, role: s
     return "Please enter a valid email address";
   }
 
-  if (!password || typeof password !== "string" || password.trim().length < 8) {
-    return "Password must be at least 8 characters long";
+  if (!isPasswordComplexEnough(password)) {
+    return PASSWORD_POLICY_MESSAGE;
   }
 
   if (!role || !["user", "manager", "admin"].includes(role)) {
