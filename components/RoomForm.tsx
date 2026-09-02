@@ -58,8 +58,18 @@ export function RoomForm({ initialData, onSubmit, submitLabel }: RoomFormProps) 
     }
 
     const capacityNumber = Number(capacity);
-    if (isNaN(capacityNumber) || capacityNumber < 1) {
-      setError("Capacity must be a valid number greater than 0.");
+    if (isNaN(capacityNumber) || capacityNumber < 1 || capacityNumber > 200) {
+      setError("Capacity must be a valid number between 1 and 200.");
+      return;
+    }
+
+    if (name.trim().length < 2 || name.trim().length > 100) {
+      setError("Room name must be between 2 and 100 characters.");
+      return;
+    }
+
+    if (location.trim().length < 2 || location.trim().length > 200) {
+      setError("Location must be between 2 and 200 characters.");
       return;
     }
 

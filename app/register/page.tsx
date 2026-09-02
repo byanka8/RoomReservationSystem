@@ -5,22 +5,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import AuthForm from "@/components/AuthForm";
-
-const isValidPassword = (password: string): boolean => {
-    // Check length
-    if (password.length < 8) return false;
-    
-    // Check for at least one uppercase letter
-    if (!/[A-Z]/.test(password)) return false;
-    
-    // Check for at least one lowercase letter
-    if (!/[a-z]/.test(password)) return false;
-    
-    // Check for at least one special character
-    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) return false;
-    
-    return true;
-};
+import { isPasswordComplexEnough, PASSWORD_POLICY_MESSAGE } from "@/lib/passwordPolicy";
 
 export default function Registration() {
 
@@ -37,8 +22,8 @@ export default function Registration() {
       e.preventDefault();
       setError("");
 
-      if (!isValidPassword(password)) {
-        setError("Password must contain at least 8 characters, one uppercase letter, one lowercase letter, and one special character.");
+      if (!isPasswordComplexEnough(password)) {
+        setError(PASSWORD_POLICY_MESSAGE);
         return;
       }
 
@@ -117,7 +102,7 @@ export default function Registration() {
               required
             />
             <p className="mt-3 text-sm text-slate-500">
-              Password must be at least 8 characters and include uppercase, lowercase, and a symbol.
+              {PASSWORD_POLICY_MESSAGE}
             </p>
           </div>
 

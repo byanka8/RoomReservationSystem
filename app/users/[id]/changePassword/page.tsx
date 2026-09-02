@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { isPasswordComplexEnough, PASSWORD_POLICY_MESSAGE } from "@/lib/passwordPolicy";
 
 type User = {
   _id: string;
@@ -98,8 +99,8 @@ export default function ChangePassword() {
     setSuccessMessage(null);
 
     // Validate new password
-    if (!isValidPassword(newPassword)) {
-      setError("Password must contain at least 8 characters, one uppercase letter, one lowercase letter, and one special character.");
+    if (!isPasswordComplexEnough(newPassword)) {
+      setError(PASSWORD_POLICY_MESSAGE);
       return;
     }
 
@@ -156,7 +157,7 @@ export default function ChangePassword() {
               required
             />
             <p className="mt-3 text-sm text-slate-500">
-              Password must be at least 8 characters and include uppercase, lowercase, and a special character.
+              {PASSWORD_POLICY_MESSAGE}
             </p>
           </div>
 

@@ -104,6 +104,29 @@ export function ReservationForm({ initialData, onSubmit }: ReservationFormProps)
       return;
     }
 
+    const selectedDate = new Date(`${date}T00:00:00`);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      setError("Reservation date cannot be in the past.");
+      return;
+    }
+
+    const startMinutes = Number(startTime.slice(0, 2)) * 60 + Number(startTime.slice(3, 5));
+    const endMinutes = Number(endTime.slice(0, 2)) * 60 + Number(endTime.slice(3, 5));
+
+    if (endMinutes <= startMinutes) {
+      setError("End time must be after the start time.");
+      return;
+    }
+
+    const durationMinutes = endMinutes - startMinutes;
+    if (durationMinutes < 30 || durationMinutes > 12 * 60) {
+      setError("Reservation must be between 30 minutes and 12 hours.");
+      return;
+    }
+
     try {
       const payload: ReservationFormData = {
         roomId,

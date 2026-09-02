@@ -3,6 +3,7 @@
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { isPasswordComplexEnough, PASSWORD_POLICY_MESSAGE } from "@/lib/passwordPolicy";
 
 type User = {
   _id?: string;
@@ -58,6 +59,11 @@ export function UserForm({ initialData, onSubmit, submitLabel }: UserFormProps) 
       return;
     }
 
+    if (name.trim().length < 2 || name.trim().length > 100) {
+      setError("Name must be between 2 and 100 characters.");
+      return;
+    }
+
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError("Please enter a valid email address.");
       return;
@@ -65,6 +71,11 @@ export function UserForm({ initialData, onSubmit, submitLabel }: UserFormProps) 
 
     if (!isEditMode && !password) {
       setError("Password is required when creating a new user.");
+      return;
+    }
+
+    if (password && !isPasswordComplexEnough(password)) {
+      setError(PASSWORD_POLICY_MESSAGE);
       return;
     }
 
