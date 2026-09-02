@@ -8,7 +8,7 @@ import { logAuthSuccess, logAuthFailure, getClientIp, logAccountDisabled, logVal
 export async function POST(request: Request) {
     try {
 
-        connectToDatabase();
+        await connectToDatabase();
 
         // Get client IP
         const ipAddress = getClientIp(request);
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
         // Validate input
         if (!email || !password) {
             await logValidationFailure(email, ipAddress, "/api/login", "Missing email or password");
-            return NextResponse.json({error: "Invalid username and/or password.", status: 401})
+            return NextResponse.json({error: "Invalid username and/or password."}, {status: 401})
         }
 
         const userExist = await User.findOne({email})
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
         // user does not exist
         if(!userExist) {
             await logAuthFailure(email, ipAddress, "User not found");
-            return NextResponse.json({error: "Invalid username and/or password.", status: 401})
+            return NextResponse.json({error: "Invalid username and/or password."}, {status: 401})
         }
 
         // Check if account is disabled
@@ -40,9 +40,8 @@ export async function POST(request: Request) {
                 const remainingTime = Math.ceil((fifteenMinutes - (currentTime - disabledTime)) / 1000 / 60);
                 await logAuthFailure(email, ipAddress, `Account locked. ${remainingTime} minutes remaining`);
                 return NextResponse.json({
-                    error: `Account is locked due to multiple failed login attempts. Please try again in ${remainingTime} minute(s).`,
-                    status: 403
-                })
+                    error: `Account is locked due to multiple failed login attempts. Please try again in ${remainingTime} minute(s).`
+                }, {status: 403})
             } else {
                 // 15 minutes have passed, re-enable the account
                 userExist.isAccountDisabled = false;
@@ -56,19 +55,20 @@ export async function POST(request: Request) {
 
         if(!isMatch) {
             // Increment failed login attempts
-            userExist.failedLoginAttempts += 1;
+            userExist.failedLoginAttempts = (userExist.failedLoginAttempts || 0) + 1;
             // save latest failed login attempt date
             userExist.lastFailedLoginAt = new Date();
 
             // Disable account after 5 failed attempts
             if(userExist.failedLoginAttempts >= 5) {
                 userExist.isAccountDisabled = true;
+                userExist.accountDisabledAt = new Date();
                 await logAccountDisabled(userExist._id.toString(), email, ipAddress, "5 failed login attempts");
             }
 
             await userExist.save();
             await logAuthFailure(email, ipAddress, `Password mismatch (attempt ${userExist.failedLoginAttempts})`);
-            return NextResponse.json({error: "Invalid username and/or password.", status: 401})
+            return NextResponse.json({error: "Invalid username and/or password."}, {status: 401})
         }
 
         // Reset failed login attempts on successful login
