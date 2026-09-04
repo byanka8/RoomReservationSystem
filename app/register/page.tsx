@@ -115,7 +115,7 @@ export default function Registration() {
               required
             >
               <option value="">Select a question</option>
-              <option>What is your first pet's name?</option>
+              <option>What is your first pet&apos;s name?</option>
               <option>What was the name of your first school?</option>
               <option>What city were you born in?</option>
               <option>What is your favorite food?</option>
