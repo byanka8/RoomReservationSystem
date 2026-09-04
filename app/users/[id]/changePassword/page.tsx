@@ -13,22 +13,6 @@ type User = {
   avatar: string;
 };
 
-const isValidPassword = (password: string): boolean => {
-    // Check length
-    if (password.length < 8) return false;
-    
-    // Check for at least one uppercase letter
-    if (!/[A-Z]/.test(password)) return false;
-    
-    // Check for at least one lowercase letter
-    if (!/[a-z]/.test(password)) return false;
-    
-    // Check for at least one special character
-    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) return false;
-    
-    return true;
-};
-
 export default function ChangePassword() {
   const params = useParams();
   const router = useRouter();
